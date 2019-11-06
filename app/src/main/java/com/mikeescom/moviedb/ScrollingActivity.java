@@ -30,7 +30,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
     private String TAG = ScrollingActivity.class.getSimpleName();
 
-    private static final String API_KEY = "da6df6e2cc2d20a08d9c8b658f12f5a5";
+    private static final String API_KEY = BuildConfig.API_KEY;
     private ScrollingActivityClickHandlers scrollingActivityClickHandlers;
     private ActivityScrollingBinding activityScrollingBinding;
     private RecyclerView recyclerView;
