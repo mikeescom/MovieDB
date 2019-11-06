@@ -4,17 +4,18 @@ import android.content.Context;
 import android.os.Bundle;
 import com.mikeescom.moviedb.databinding.ActivityScrollingBinding;
 import com.mikeescom.moviedb.model.Movie;
-import com.mikeescom.moviedb.model.MovieResponse;
-import com.mikeescom.moviedb.network.Api;
+import com.mikeescom.moviedb.viewmodel.ScrollingActivityViewModel;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,17 +23,13 @@ import android.view.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-
 public class ScrollingActivity extends AppCompatActivity {
 
     private String TAG = ScrollingActivity.class.getSimpleName();
 
-    private static final String API_KEY = BuildConfig.API_KEY;
     private ScrollingActivityClickHandlers scrollingActivityClickHandlers;
     private ActivityScrollingBinding activityScrollingBinding;
+    private ScrollingActivityViewModel scrollingActivityViewModel;
     private RecyclerView recyclerView;
     private MoviesAdapter moviesAdapter;
     private ArrayList<Movie> moviesList;
@@ -44,6 +41,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
         scrollingActivityClickHandlers = new ScrollingActivityClickHandlers(this);
         activityScrollingBinding = DataBindingUtil.setContentView(this,R.layout.activity_scrolling);
+        scrollingActivityViewModel= ViewModelProviders.of(this).get(ScrollingActivityViewModel.class);
         activityScrollingBinding.setClickHandler(scrollingActivityClickHandlers);
     }
 
@@ -68,7 +66,17 @@ public class ScrollingActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void loadRecyclerView(List<Movie> moviesList) {
+    private void getMovies(String query) {
+        scrollingActivityViewModel.getMovies(query).observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<Movie> moviesFromLiveData) {
+                moviesList = (ArrayList<Movie>) moviesFromLiveData;
+                loadRecyclerView(moviesList);
+            }
+        });
+    }
+
+    private void loadRecyclerView(final List<Movie> moviesList) {
         recyclerView = activityScrollingBinding.recyclerView;
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
@@ -82,18 +90,6 @@ public class ScrollingActivity extends AppCompatActivity {
 
             }
         });
-        /*new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT) {
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-                Movie bookToDelete = moviesList.get(viewHolder.getAdapterPosition());
-                mainActivityViewModel.deleteBook(bookToDelete);
-            }
-        }).attachToRecyclerView(recyclerView);*/
     }
 
     public class ScrollingActivityClickHandlers {
@@ -104,25 +100,7 @@ public class ScrollingActivity extends AppCompatActivity {
         }
 
         public void onSubmitButtonClicked(View view){
-            search(activityScrollingBinding.search.getText().toString());
+            getMovies(activityScrollingBinding.search.getText().toString());
         }
-    }
-
-    private void search(String query) {
-
-        Call<MovieResponse> call = Api.getClient().getMovieSearch(API_KEY, query);
-
-        call.enqueue(new Callback<MovieResponse>() {
-            @Override
-            public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
-                MovieResponse movies = response.body();
-                loadRecyclerView(movies.getResults());
-            }
-
-            @Override
-            public void onFailure(Call<MovieResponse> call, Throwable t) {
-                Log.e(TAG, t.getStackTrace().toString());
-            }
-        });
     }
 }
