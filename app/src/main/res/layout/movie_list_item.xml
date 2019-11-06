@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+    <data>
+        <variable
+            name="movie"
+            type="com.mikeescom.moviedb.model.Movie" />
+    </data>
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:gravity="left">
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{movie.title}"
+            android:textSize="15dp"
+            android:textStyle="bold"
+            />
+        <TextView
+            android:id="@+id/original_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{movie.originalTitle}"
+            android:textSize="14dp"
+            android:textStyle="bold"
+            />
+        <TextView
+            android:id="@+id/overview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{movie.overview}"
+            android:textSize="11dp"
+            android:textStyle="bold"
+            />
+        <TextView
+            android:id="@+id/release_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{movie.releaseDate}"
+            android:textSize="14dp"
+            android:textStyle="bold"
+            />
+    </LinearLayout>
+</layout>

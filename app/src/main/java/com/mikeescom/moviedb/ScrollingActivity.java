@@ -2,22 +2,24 @@ package com.mikeescom.moviedb;
 
 import android.content.Context;
 import android.os.Bundle;
-
-import com.google.android.material.snackbar.Snackbar;
 import com.mikeescom.moviedb.databinding.ActivityScrollingBinding;
 import com.mikeescom.moviedb.model.Movie;
 import com.mikeescom.moviedb.model.MovieResponse;
 import com.mikeescom.moviedb.network.Api;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -31,6 +33,9 @@ public class ScrollingActivity extends AppCompatActivity {
     private static final String API_KEY = "da6df6e2cc2d20a08d9c8b658f12f5a5";
     private ScrollingActivityClickHandlers scrollingActivityClickHandlers;
     private ActivityScrollingBinding activityScrollingBinding;
+    private RecyclerView recyclerView;
+    private MoviesAdapter moviesAdapter;
+    private ArrayList<Movie> moviesList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +45,6 @@ public class ScrollingActivity extends AppCompatActivity {
         scrollingActivityClickHandlers = new ScrollingActivityClickHandlers(this);
         activityScrollingBinding = DataBindingUtil.setContentView(this,R.layout.activity_scrolling);
         activityScrollingBinding.setClickHandler(scrollingActivityClickHandlers);
-        setSupportActionBar(activityScrollingBinding.toolbar);
     }
 
     @Override
@@ -64,6 +68,34 @@ public class ScrollingActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    private void loadRecyclerView(List<Movie> moviesList) {
+        recyclerView = activityScrollingBinding.recyclerView;
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+
+        moviesAdapter = new MoviesAdapter();
+        recyclerView.setAdapter(moviesAdapter);
+        moviesAdapter.setMovies(moviesList);
+        moviesAdapter.setListener(new MoviesAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Movie movie) {
+
+            }
+        });
+        /*new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0,ItemTouchHelper.LEFT) {
+            @Override
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder viewHolder1) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+                Movie bookToDelete = moviesList.get(viewHolder.getAdapterPosition());
+                mainActivityViewModel.deleteBook(bookToDelete);
+            }
+        }).attachToRecyclerView(recyclerView);*/
+    }
+
     public class ScrollingActivityClickHandlers {
         Context context;
 
@@ -84,6 +116,7 @@ public class ScrollingActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
                 MovieResponse movies = response.body();
+                loadRecyclerView(movies.getResults());
             }
 
             @Override
