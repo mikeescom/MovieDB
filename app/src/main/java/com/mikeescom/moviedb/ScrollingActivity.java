@@ -6,13 +6,12 @@ import com.mikeescom.moviedb.databinding.ActivityScrollingBinding;
 import com.mikeescom.moviedb.model.Movie;
 import com.mikeescom.moviedb.viewmodel.ScrollingActivityViewModel;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.paging.PagedList;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,7 +19,6 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ScrollingActivity extends AppCompatActivity {
@@ -32,7 +30,7 @@ public class ScrollingActivity extends AppCompatActivity {
     private ScrollingActivityViewModel scrollingActivityViewModel;
     private RecyclerView recyclerView;
     private MoviesAdapter moviesAdapter;
-    private ArrayList<Movie> moviesList;
+    private PagedList<Movie> moviesList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,8 +39,9 @@ public class ScrollingActivity extends AppCompatActivity {
 
         scrollingActivityClickHandlers = new ScrollingActivityClickHandlers(this);
         activityScrollingBinding = DataBindingUtil.setContentView(this,R.layout.activity_scrolling);
-        scrollingActivityViewModel= ViewModelProviders.of(this).get(ScrollingActivityViewModel.class);
+        scrollingActivityViewModel = ViewModelProviders.of(this).get(ScrollingActivityViewModel.class);
         activityScrollingBinding.setClickHandler(scrollingActivityClickHandlers);
+        getPopularMovies();
     }
 
     @Override
@@ -66,11 +65,11 @@ public class ScrollingActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void getMovies(String query) {
-        scrollingActivityViewModel.getMovies(query).observe(this, new Observer<List<Movie>>() {
+    private void getPopularMovies() {
+        scrollingActivityViewModel.getMoviesPagedList().observe(this, new Observer<PagedList<Movie>>() {
             @Override
-            public void onChanged(@Nullable List<Movie> moviesFromLiveData) {
-                moviesList = (ArrayList<Movie>) moviesFromLiveData;
+            public void onChanged(PagedList<Movie> moviesFromLiveData) {
+                moviesList = moviesFromLiveData;
                 loadRecyclerView(moviesList);
             }
         });
@@ -82,6 +81,7 @@ public class ScrollingActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
 
         moviesAdapter = new MoviesAdapter();
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(moviesAdapter);
         moviesAdapter.setMovies(moviesList);
         moviesAdapter.setListener(new MoviesAdapter.OnItemClickListener() {
@@ -90,6 +90,7 @@ public class ScrollingActivity extends AppCompatActivity {
 
             }
         });
+        moviesAdapter.notifyDataSetChanged();
     }
 
     public class ScrollingActivityClickHandlers {
@@ -100,7 +101,7 @@ public class ScrollingActivity extends AppCompatActivity {
         }
 
         public void onSubmitButtonClicked(View view){
-            getMovies(activityScrollingBinding.search.getText().toString());
+            //getMovies(activityScrollingBinding.search.getText().toString());
         }
     }
 }

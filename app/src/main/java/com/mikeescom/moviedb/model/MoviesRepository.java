@@ -5,7 +5,7 @@ import android.app.Application;
 import androidx.lifecycle.MutableLiveData;
 
 import com.mikeescom.moviedb.BuildConfig;
-import com.mikeescom.moviedb.service.ApiInterface;
+import com.mikeescom.moviedb.service.MovieDataService;
 import com.mikeescom.moviedb.service.RetrofitInstance;
 
 import java.util.ArrayList;
@@ -26,7 +26,7 @@ public class MoviesRepository {
 
     public MutableLiveData<List<Movie>> getMutableLiveData(String query) {
 
-        ApiInterface movieDataService = RetrofitInstance.getService();
+        MovieDataService movieDataService = RetrofitInstance.getService();
 
         Call<MovieResponse> call = movieDataService.getMovieSearch(BuildConfig.API_KEY, query);
 
