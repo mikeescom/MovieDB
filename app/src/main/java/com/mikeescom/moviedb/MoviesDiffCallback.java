@@ -2,10 +2,8 @@ package com.mikeescom.moviedb;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DiffUtil;
-
 import com.mikeescom.moviedb.model.Movie;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MoviesDiffCallback extends DiffUtil.Callback {

@@ -18,11 +18,9 @@ import retrofit2.Response;
 public class MovieDataSource extends PageKeyedDataSource<Long, Movie> {
 
     private MovieDataService movieDataService;
-    private Application application;
 
-    public MovieDataSource(MovieDataService movieDataService, Application application) {
+    public MovieDataSource(MovieDataService movieDataService) {
         this.movieDataService = movieDataService;
-        this.application = application;
     }
 
     @Override

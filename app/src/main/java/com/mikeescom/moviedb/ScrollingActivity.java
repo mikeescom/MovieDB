@@ -14,10 +14,11 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -25,9 +26,9 @@ public class ScrollingActivity extends AppCompatActivity {
 
     private String TAG = ScrollingActivity.class.getSimpleName();
 
-    private ScrollingActivityClickHandlers scrollingActivityClickHandlers;
     private ActivityScrollingBinding activityScrollingBinding;
     private ScrollingActivityViewModel scrollingActivityViewModel;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView recyclerView;
     private MoviesAdapter moviesAdapter;
     private PagedList<Movie> moviesList;
@@ -37,11 +38,17 @@ public class ScrollingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scrolling);
 
-        scrollingActivityClickHandlers = new ScrollingActivityClickHandlers(this);
         activityScrollingBinding = DataBindingUtil.setContentView(this,R.layout.activity_scrolling);
         scrollingActivityViewModel = ViewModelProviders.of(this).get(ScrollingActivityViewModel.class);
-        activityScrollingBinding.setClickHandler(scrollingActivityClickHandlers);
         getPopularMovies();
+        swipeRefreshLayout = activityScrollingBinding.swipeLayout;
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                getPopularMovies();
+            }
+        });
     }
 
     @Override
@@ -81,27 +88,15 @@ public class ScrollingActivity extends AppCompatActivity {
         recyclerView.setHasFixedSize(true);
 
         moviesAdapter = new MoviesAdapter();
+        moviesAdapter.setMovies(moviesList);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(moviesAdapter);
-        moviesAdapter.setMovies(moviesList);
         moviesAdapter.setListener(new MoviesAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(Movie movie) {
-
+                Toast.makeText(ScrollingActivity.this, movie.getTitle(), Toast.LENGTH_LONG).show();
             }
         });
         moviesAdapter.notifyDataSetChanged();
-    }
-
-    public class ScrollingActivityClickHandlers {
-        Context context;
-
-        public ScrollingActivityClickHandlers(Context context) {
-            this.context = context;
-        }
-
-        public void onSubmitButtonClicked(View view){
-            //getMovies(activityScrollingBinding.search.getText().toString());
-        }
     }
 }
